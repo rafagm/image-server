@@ -11,6 +11,7 @@ import es.rafagm.model.Image;
 
 @Repository
 @Transactional
-public interface ImageRepository extends CrudRepository<Image, Integer> {	
+public interface ImageRepository extends CrudRepository<Image, Integer> {		
+	public Optional<Image> findById(Long imageId);
 	public Optional<Image> findByName(String name);
 }

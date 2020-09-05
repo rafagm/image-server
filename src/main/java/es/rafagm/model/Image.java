@@ -23,7 +23,7 @@ public class Image implements Serializable {
 	@Column
 	private String type;
 	
-	@Column(length = 1000)
+	@Column(length = 500000)
 	private byte[] imageBytes;
 	
 	

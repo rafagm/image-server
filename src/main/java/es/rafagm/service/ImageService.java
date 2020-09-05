@@ -2,6 +2,7 @@ package es.rafagm.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -21,13 +22,25 @@ public class ImageService {
 
 	@Autowired
 	ImageRepository imageRepository;
+
+	public Optional<Image> findById(Long imageId) {
+		return imageRepository.findById(imageId);
+	}
 	
 	public Optional<Image> findByName(String name) {
 		return imageRepository.findByName(name);
 	}
 	
+	public List<Image> findAll() {
+		return (List<Image>) imageRepository.findAll();
+	}
+	
 	public void save(Image image) {
 		 imageRepository.save(image);
+	}
+	
+	public void delete(Image image) {
+		imageRepository.delete(image);
 	}
 	
 	public static byte[] compressBytes(byte[] data) {
