@@ -59,11 +59,15 @@
 	<profiles>
 		<profile>
 			<id>local</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<properties>
 				<environment>local</environment>
+				<maven.resource.overwrite>true</maven.resource.overwrite>
+			</properties>
+		</profile>
+		<profile>
+			<id>pre</id>
+			<properties>
+				<environment>pre</environment>
 				<maven.resource.overwrite>true</maven.resource.overwrite>
 			</properties>
 		</profile>

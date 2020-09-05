@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost/image_server?useSSL=false&serverTimezone=UTC
-    username: image_server
-    password: image_server
+    url: jdbc:mysql://db4free.net/image_server_pre?useSSL=false&serverTimezone=UTC
+    username: image_server_pre
+    password: image_server_pre
     driverClassNam: com.mysql.jdbc.Driver
   jpa:
     show-sql: true
