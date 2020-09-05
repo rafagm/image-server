@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,8 +28,13 @@ import es.rafagm.mapper.Mapper;
 import es.rafagm.model.Image;
 import es.rafagm.response.StandardResponse;
 import es.rafagm.service.ImageService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Controller
+@Api(value = "Image server")
 @RequestMapping("image")
 public class ImageController {
 
@@ -37,17 +43,28 @@ public class ImageController {
 	@Autowired
 	private ImageService imageService;
 
+	@ApiOperation(value = "View list of all images", response = Image.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved list", response = List.class),
+			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden") })
+	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = "")
 	public ResponseEntity<?> getAllImages() throws IOException {
 		if (log.isDebugEnabled())
 			log.debug("GET /alarma");
-		
+
 		List<Image> images = imageService.findAll();
 		images.stream().forEach(image -> image.setImageBytes(imageService.decompressBytes(image.getImageBytes())));
 
 		return new ResponseEntity<List<Image>>(images, HttpStatus.OK);
 	}
 
+	@ApiOperation(value = "View an image", response = Image.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved image", response = Image.class),
+			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+			@ApiResponse(code = 404, message = "Image with id: ${imageId} could not be found")})
+	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = "/{imageId}")
 	public ResponseEntity<?> getImage(@PathVariable("imageId") Long imageId) throws IOException, ImageNotFound {
 		if (log.isDebugEnabled())
@@ -56,8 +73,8 @@ public class ImageController {
 		Optional<Image> fetchedImage = imageService.findById(imageId);
 
 		if (fetchedImage.isPresent()) {
-			Image image = new Image(fetchedImage.get().getId(), fetchedImage.get().getName(), fetchedImage.get().getType(),
-					imageService.decompressBytes(fetchedImage.get().getImageBytes()));
+			Image image = new Image(fetchedImage.get().getId(), fetchedImage.get().getName(),
+					fetchedImage.get().getType(), imageService.decompressBytes(fetchedImage.get().getImageBytes()));
 
 			return new ResponseEntity<Image>(image, HttpStatus.OK);
 		} else {
@@ -65,6 +82,14 @@ public class ImageController {
 		}
 	}
 
+	@ApiOperation(value = "Upload an image", notes = "The file must be a kind of image file")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 201, message = "Image created", response = Image.class),
+			@ApiResponse(code = 401, message = "You are not authorized to create the resource"),
+			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+			@ApiResponse(code = 400, message = "You must attach an image") })
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping(value = "")
 	public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile uploadedImage)
 			throws IOException, WrongTypeFileException {
@@ -79,20 +104,26 @@ public class ImageController {
 
 		imageService.save(image);
 
-		return new ResponseEntity<UploadedImageDTO>(Mapper.mapUploadImageDTO(image), HttpStatus.OK);
+		return new ResponseEntity<UploadedImageDTO>(Mapper.mapUploadImageDTO(image), HttpStatus.CREATED);
 	}
-	
-	@DeleteMapping(value ="/{imageId}")
-	public ResponseEntity<?> deleteImage(@PathVariable("imageId") Long imageId) throws ImageNotFound{
+
+	@ApiOperation(value = "Delete an image ")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Image deleted", response = StandardResponse.class),
+			@ApiResponse(code = 401, message = "You are not authorized"),
+			@ApiResponse(code = 404, message = "Image not found", response = String.class) })
+	@ResponseStatus(HttpStatus.OK)
+	@DeleteMapping(value = "/{imageId}")
+	public ResponseEntity<?> deleteImage(@PathVariable("imageId") Long imageId) throws ImageNotFound {
 		if (log.isDebugEnabled())
 			log.debug("DELETE /alarma/" + imageId + " invoked");
-		
+
 		Optional<Image> image = imageService.findById(imageId);
-		
+
 		if (image.isPresent()) {
 			imageService.delete(image.get());
-			
-			return new ResponseEntity<StandardResponse>(new StandardResponse("Image with id: " + imageId + " has been sucessfully deleted"), HttpStatus.OK);
+
+			return new ResponseEntity<StandardResponse>(
+					new StandardResponse("Image with id: " + imageId + " has been sucessfully deleted"), HttpStatus.OK);
 		} else {
 			throw new ImageNotFound("Image with id: " + "'" + imageId + "'" + " could not be found");
 		}

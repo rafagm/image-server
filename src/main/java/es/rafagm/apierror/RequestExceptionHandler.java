@@ -50,7 +50,7 @@ public class RequestExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(ImageNotFound.class)
 	private ResponseEntity<Object> handleImageNoutFound(ImageNotFound e) {
 		String error = "Image doesn't exist";
-		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, error, e);
+		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, error, e);
 		return buildResponseEntity(apiError);
 	}
 
