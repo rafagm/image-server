@@ -1,6 +1,6 @@
 # Image REST API
 
-Image REST API API made with Spring Boot
+Image REST API made with Spring Boot
 
 ## API Swagger documentation 
 
