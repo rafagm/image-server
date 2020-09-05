@@ -56,7 +56,7 @@ public class ImageController {
 		Optional<Image> fetchedImage = imageService.findById(imageId);
 
 		if (fetchedImage.isPresent()) {
-			Image image = new Image(fetchedImage.get().getName(), fetchedImage.get().getType(),
+			Image image = new Image(fetchedImage.get().getId(), fetchedImage.get().getName(), fetchedImage.get().getType(),
 					imageService.decompressBytes(fetchedImage.get().getImageBytes()));
 
 			return new ResponseEntity<Image>(image, HttpStatus.OK);

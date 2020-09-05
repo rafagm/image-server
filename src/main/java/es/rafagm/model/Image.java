@@ -37,6 +37,14 @@ public class Image implements Serializable {
 		this.type = type;
 		this.imageBytes = imageBytes;
 	}
+	
+	public Image(Long id, String name, String type, byte[] imageBytes) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.type = type;
+		this.imageBytes = imageBytes;
+	}
 
 	public String getName() {
 		return name;
