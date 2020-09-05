@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
+import es.rafagm.apierror.exception.ImageNotFound;
 import es.rafagm.apierror.exception.WrongTypeFileException;
 import es.rafagm.dto.UploadedImageDTO;
 import es.rafagm.mapper.Mapper;
@@ -33,7 +34,7 @@ public class ImageController {
 	private ImageService imageService;
 
 	@GetMapping(value = "/{imageName}")
-	public ResponseEntity<?> getImage(@PathVariable("imageName") String imageName) throws IOException {
+	public ResponseEntity<?> getImage(@PathVariable("imageName") String imageName) throws IOException, ImageNotFound {
 		if (log.isDebugEnabled())
 			log.debug("GET /image/{imageName}" + imageName + " invoked");
 
@@ -45,7 +46,7 @@ public class ImageController {
 
 			return new ResponseEntity<Image>(image, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<String>("Image not found", HttpStatus.NOT_FOUND);
+			throw new ImageNotFound("Image with name: " + imageName + " could not be found");
 		}
 	}
 

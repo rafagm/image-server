@@ -6,9 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import es.rafagm.apierror.exception.ImageNotFound;
 import es.rafagm.apierror.exception.WrongTypeFileException;
 
 @ControllerAdvice
@@ -22,10 +24,25 @@ public class RequestExceptionHandler extends ResponseEntityExceptionHandler {
 
 		return buildResponseEntity(apiError);
 	}
+	
+	@ExceptionHandler(MultipartException.class)
+	protected ResponseEntity<Object> handleMultipartException(MultipartException e) {
+		String error = "You must attach a mutipartfile to the request";
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, error, e);
+		return buildResponseEntity(apiError);
+	}
 
 	@ExceptionHandler(WrongTypeFileException.class)
 	private ResponseEntity<Object> handleWrongTypeFile(WrongTypeFileException e) {
-		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+		String error = "You must attach an image";
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, error, e);
+		return buildResponseEntity(apiError);
+	}
+	
+	@ExceptionHandler(ImageNotFound.class)
+	private ResponseEntity<Object> handleImageNoutFound(ImageNotFound e) {
+		String error = "Image doesn't exist";
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, error, e);
 		return buildResponseEntity(apiError);
 	}
 
