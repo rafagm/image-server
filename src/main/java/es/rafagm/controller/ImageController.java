@@ -44,7 +44,7 @@ public class ImageController {
 	private ImageService imageService;
 
 	@ApiOperation(value = "View list of all images", response = Image.class, responseContainer = "List")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved list", response = List.class),
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved list"),
 			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
 			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden") })
 	@ResponseStatus(HttpStatus.OK)
