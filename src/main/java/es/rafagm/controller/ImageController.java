@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
+import es.rafagm.apierror.exception.WrongTypeFileException;
 import es.rafagm.dto.UploadedImageDTO;
 import es.rafagm.mapper.Mapper;
 import es.rafagm.model.Image;
@@ -49,9 +50,12 @@ public class ImageController {
 	}
 
 	@PostMapping(value = "")
-	public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile uploadedImage) throws IOException {
+	public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile uploadedImage) throws IOException, WrongTypeFileException {
 		if (log.isDebugEnabled())
 			log.debug("POST /image/{uploadImage}" + uploadedImage + " invoked");
+		
+		if (!uploadedImage.getContentType().startsWith("image/"))
+			throw new WrongTypeFileException("Only image files are allowed");
 
 		Image image = new Image(uploadedImage.getOriginalFilename(), uploadedImage.getContentType(),
 				imageService.compressBytes(uploadedImage.getBytes()));
