@@ -3,6 +3,7 @@ package es.rafagm.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -48,22 +49,42 @@ public class ImageController {
 			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
 			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden") })
 	@ResponseStatus(HttpStatus.OK)
-	@GetMapping(value = "")
-	public ResponseEntity<?> getAllImages() throws IOException {
+	@GetMapping(value = "/all")
+	public ResponseEntity<List<Image>> getAllImages() throws IOException {
 		if (log.isDebugEnabled())
 			log.debug("GET /alarma");
 
-		List<Image> images = imageService.findAll();
+		List<Image> images = imageService.getAll();
+		
 		images.stream().forEach(image -> image.setImageBytes(imageService.decompressBytes(image.getImageBytes())));
 
-		return new ResponseEntity<List<Image>>(images, HttpStatus.OK);
+		return new ResponseEntity<List<Image>>(images, new HttpHeaders(), HttpStatus.OK);
+	}
+
+	@ApiOperation(value = "View list of images with pagination", response = Image.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved list"),
+			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden") })
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping(value = "")
+	public ResponseEntity<List<Image>> getAllImages(@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "createDateTime") String sortBy) throws IOException {
+		if (log.isDebugEnabled()) 
+			log.debug("GET /alarma (with pagination)");
+		
+		List<Image> images = imageService.getAll(pageNo, pageSize, sortBy);
+		
+		images.stream().forEach(image -> image.setImageBytes(imageService.decompressBytes(image.getImageBytes())));
+		
+		return new ResponseEntity<List<Image>>(images, new HttpHeaders(), HttpStatus.OK);
 	}
 
 	@ApiOperation(value = "View an image", response = Image.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved image", response = Image.class),
 			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
 			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-			@ApiResponse(code = 404, message = "Image with id: ${imageId} could not be found")})
+			@ApiResponse(code = 404, message = "Image with id: ${imageId} could not be found") })
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping(value = "/{imageId}")
 	public ResponseEntity<?> getImage(@PathVariable("imageId") Long imageId) throws IOException, ImageNotFound {
@@ -84,8 +105,7 @@ public class ImageController {
 	}
 
 	@ApiOperation(value = "Upload an image", notes = "The file must be a kind of image file")
-	@ApiResponses(value = { 
-			@ApiResponse(code = 201, message = "Image created", response = Image.class),
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Image created", response = Image.class),
 			@ApiResponse(code = 401, message = "You are not authorized to create the resource"),
 			@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
 			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),

@@ -2,6 +2,7 @@ package es.rafagm.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.DataFormatException;
@@ -11,6 +12,10 @@ import java.util.zip.Inflater;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import es.rafagm.model.Image;
@@ -31,8 +36,16 @@ public class ImageService {
 		return imageRepository.findByName(name);
 	}
 	
-	public List<Image> findAll() {
+	public List<Image> getAll() {
 		return (List<Image>) imageRepository.findAll();
+	}
+	
+	public List<Image> getAll(Integer pageNo, Integer pageSize, String sortBy) {
+		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+		
+		Page<Image> pagedResult = imageRepository.findAll(paging);
+		
+		return pagedResult.hasContent() ?  pagedResult.getContent() :  new ArrayList<Image>();
 	}
 	
 	public void save(Image image) {
@@ -42,6 +55,20 @@ public class ImageService {
 	public void delete(Image image) {
 		imageRepository.delete(image);
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	public static byte[] compressBytes(byte[] data) {
 		Deflater deflater = new Deflater();
