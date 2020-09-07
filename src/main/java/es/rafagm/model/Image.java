@@ -1,6 +1,7 @@
 package es.rafagm.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "image")
@@ -25,6 +28,9 @@ public class Image implements Serializable {
 	
 	@Column(length = 500000)
 	private byte[] imageBytes;
+	
+    @CreationTimestamp
+    private LocalDateTime createDateTime;
 	
 	
 	public Image() {
@@ -44,6 +50,15 @@ public class Image implements Serializable {
 		this.name = name;
 		this.type = type;
 		this.imageBytes = imageBytes;
+	}
+	
+	public Image(Long id, String name, String type, byte[] imageBytes, LocalDateTime createDateTime) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.type = type;
+		this.imageBytes = imageBytes;
+		this.createDateTime = createDateTime;
 	}
 
 	public String getName() {
@@ -73,6 +88,12 @@ public class Image implements Serializable {
 	public Long getId() {
 		return id;
 	}
+
+	public LocalDateTime getCreateDateTime() {
+		return createDateTime;
+	}
+	
+	
 	
 	
 }
